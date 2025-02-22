@@ -2,6 +2,14 @@
 
 Modul ini adalah modul Odoo untuk mengelola pemesanan ruangan. Modul ini memungkinkan pengguna untuk membuat dan mengelola data ruangan serta pemesanan ruangan.
 
+## Database Scema
+
+[dbdiagram.io](https://dbdiagram.io/d/odoo-room-booking-67b9face263d6cf9a017ab6b)
+
+## OpenAPI
+
+[redocly.github.io](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/fathulkirom22/odoo-room-booking/refs/heads/main/openapi_booking.yaml)
+
 ## Fitur
 
 - Mengelola data ruangan (nama ruangan, kapasitas, lokasi)
