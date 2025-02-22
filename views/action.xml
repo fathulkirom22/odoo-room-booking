@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_room_master" model="ir.actions.act_window">
+        <field name="name">Master Ruangan</field>
+        <field name="res_model">room.master</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_room_booking" model="ir.actions.act_window">
+        <field name="name">Pemesanan Ruangan</field>
+        <field name="res_model">room.booking</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

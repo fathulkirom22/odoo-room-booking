@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Main Menu -->
+    <menuitem id="room_booking_main_menu" name="Room Booking" sequence="1"/>
+
+    <!-- Submenu for Room Master -->
+    <menuitem id="room_master_menu" name="Master Ruangan"
+        parent="room_booking_main_menu"
+        action="action_room_master"
+        sequence="2"/>
+
+    <!-- Submenu for Room Booking -->
+    <menuitem id="room_booking_menu" name="Pemesanan Ruangan"
+        parent="room_booking_main_menu"
+        action="action_room_booking"
+        sequence="3"/>
+</odoo>
