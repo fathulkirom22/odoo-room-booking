@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  title: Odoo Booking API
+  version: 1.0.0
+paths:
+  /api/booking/{booking_id}:
+    get:
+      summary: Get Booking Details
+      description: Retrieve the details of a specific booking by its ID.
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: MEETING-MRK-20250223-00003
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 3
+                      nomor_pemesanan:
+                        type: string
+                        example: MEETING-MRK-20250223-00003
+                      ruangan:
+                        type: string
+                        example: 1A-001
+                      tanggal_pemesanan:
+                        type: string
+                        format: date
+                        example: 2025-02-23
+                      status:
+                        type: string
+                        example: on_going
