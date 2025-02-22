@@ -5,17 +5,30 @@ from datetime import datetime
 class RoomBooking(models.Model):
     _name = 'room.booking'
     _description = 'Pemesanan Ruangan'
+    _order = "status_order ASC, name DESC"
 
-    name = fields.Char(string='Nomor Pemesanan', required=True, copy=False, index=True, default='-')
+    name = fields.Char(string='Nomor Pemesanan', required=True, copy=False, index=True, default='Baru')
     room_id = fields.Many2one('room.master', string='Ruangan', required=True)
     booking_name = fields.Char(string='Nama Pemesanan', required=True)
-    booking_date = fields.Datetime(string='Tanggal Pemesanan', required=True)
+    booking_date = fields.Date(string='Tanggal Pemesanan', required=True)
     status = fields.Selection([
         ('draft', 'Draft'),
         ('on_going', 'On Going'),
         ('done', 'Done')
     ], string='Status Pemesanan', default='draft')
     notes = fields.Text(string='Catatan Pemesanan')
+
+    status_order = fields.Integer(
+        string="Status Order",
+        compute="_compute_status_order",
+        store=True
+    )
+
+    @api.depends('status')
+    def _compute_status_order(self):
+        for record in self:
+            status_priority = {'draft': 1, 'on_going': 2, 'done': 3}
+            record.status_order = status_priority.get(record.status, 99)  # Default 99 jika tidak ditemukan
 
     @api.constrains('room_id', 'booking_date')
     def _check_duplicate_booking(self):

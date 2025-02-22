@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_room_booking_tree" model="ir.ui.view">
-        <field name="name">room.booking.tree</field>
+    <record id="view_room_booking_list" model="ir.ui.view">
+        <field name="name">room.booking.list</field>
         <field name="model">room.booking</field>
         <field name="arch" type="xml">
             <list>
@@ -14,26 +14,63 @@
         </field>
     </record>
 
+    <record id="view_room_booking_pivot" model="ir.ui.view">
+        <field name="name">room.booking.pivot</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field type="row" name="room_id"/>
+                <field type="col" interval="day" name="booking_date"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_room_booking_kanban" model="ir.ui.view">
+        <field name="name">room.booking.kanban</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status_order">
+                <field name="name"/>
+                <field name="room_id"/>
+                <field name="booking_name"/>
+                <field name="booking_date"/>
+                <field name="status"/>
+                <field name="status_order"/>
+                
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_details">
+                            <strong><field name="booking_name"/></strong>
+                            <div>Room: <field name="room_id"/></div>
+                            <div>Date: <field name="booking_date"/></div>
+                            <div>Status: <field name="status"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
     <record id="view_room_booking_form" model="ir.ui.view">
         <field name="name">room.booking.form</field>
         <field name="model">room.booking</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="action_confirm" type="object" string="Proses Pemesanan" 
+                        invisible="status not in ('draft')"/>
+                    <button name="action_done" type="object" string="Selesaikan Pemesanan"
+                        invisible="status not in ('on_going')"/>
+                </header>
                 <sheet>
                     <group>
                         <field name="name" readonly="1"/>
-                        <field name="room_id"/>
-                        <field name="booking_name"/>
-                        <field name="booking_date"/>
+                        <field name="room_id" readonly="status not in ('draft')"/>
+                        <field name="booking_name" readonly="status not in ('draft')"/>
+                        <field name="booking_date" readonly="status not in ('draft')"/>
                         <field name="status" readonly="1"/>
-                        <field name="notes"/>
+                        <field name="notes" readonly="status not in ('draft')"/>
                     </group>
-                    <footer>
-                        <button name="action_confirm" type="object" string="Proses Pemesanan" 
-                                modifiers="{'invisible': [['status', '!=', 'draft']]}"/>
-                        <button name="action_done" type="object" string="Selesaikan Pemesanan"
-                                modifiers="{'invisible': [('status', '!=', 'on_going')]}"/>
-                    </footer>
                 </sheet>
             </form>
         </field>
