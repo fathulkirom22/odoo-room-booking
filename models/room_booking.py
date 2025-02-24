@@ -2,34 +2,30 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import datetime
 
+class CustomPipelineStage(models.Model):
+    _name = 'room.booking.stage'
+    _description = 'Pemesanan Ruangan Stages'
+
+    name = fields.Char(string="Stage Name", required=True)
+    sequence = fields.Integer(string="Order", default=99)
+
 class RoomBooking(models.Model):
     _name = 'room.booking'
     _description = 'Pemesanan Ruangan'
-    _order = "status_order ASC, name DESC"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string='Nomor Pemesanan', required=True, copy=False, index=True, default='Baru')
     room_id = fields.Many2one('room.master', string='Ruangan', required=True)
+    stage_id = fields.Many2one('room.booking.stage', string="Status Pemesanan", required=True, default=lambda self: self._default_stage())
     booking_name = fields.Char(string='Nama Pemesanan', required=True)
     booking_date = fields.Date(string='Tanggal Pemesanan', required=True)
-    status = fields.Selection([
-        ('draft', 'Draft'),
-        ('on_going', 'On Going'),
-        ('done', 'Done')
-    ], string='Status Pemesanan', default='draft')
     notes = fields.Text(string='Catatan Pemesanan')
 
-    status_order = fields.Integer(
-        string="Status Order",
-        compute="_compute_status_order",
-        store=True
-    )
-
-    @api.depends('status')
-    def _compute_status_order(self):
-        for record in self:
-            status_priority = {'draft': 1, 'on_going': 2, 'done': 3}
-            record.status_order = status_priority.get(record.status, 99)  # Default 99 jika tidak ditemukan
-
+    @api.model
+    def _default_stage(self):
+        """Ambil stage dengan sequence terkecil (biasanya Draft) sebagai default"""
+        return self.env['room.booking.stage'].search([], order="sequence asc", limit=1).id
+    
     @api.constrains('room_id', 'booking_date')
     def _check_duplicate_booking(self):
         for record in self:
@@ -88,8 +84,36 @@ class RoomBooking(models.Model):
         return super().create(vals_list)
 
     def action_confirm(self):
-        self.status = 'on_going'
+        on_progress = self.env['room.booking.stage'].search(
+            [('sequence', '=', 20)], limit=1
+        )
+        if on_progress:
+            self.stage_id = on_progress.id
+            self.message_post(body="Stage changed to on Progress", subject="Stage Update")
 
     def action_done(self):
-        self.status = 'done'
+        done = self.env['room.booking.stage'].search(
+            [('sequence', '=', 30)], limit=1
+        )
+        if done:
+            self.stage_id = done.id
+            self.message_post(body="Stage changed to Done", subject="Stage Update")
+
+    def action_next_stage(self):
+        """Pindah ke stage berikutnya berdasarkan urutan"""
+        next_stage = self.env['room.booking.stage'].search(
+            [('sequence', '>', self.stage_id.sequence)],
+            order="sequence asc", limit=1
+        )
+        if next_stage:
+            self.stage_id = next_stage.id
+
+    def action_previous_stage(self):
+        """Kembali ke stage sebelumnya berdasarkan urutan"""
+        prev_stage = self.env['room.booking.stage'].search(
+            [('sequence', '<', self.stage_id.sequence)],
+            order="sequence desc", limit=1
+        )
+        if prev_stage:
+            self.stage_id = prev_stage.id
 

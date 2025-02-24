@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <record id="view_room_booking_kanban" model="ir.ui.view">
+        <field name="name">room.booking.kanban</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id">
+                <field name="name"/>
+                <field name="room_id"/>
+                <field name="booking_name"/>
+                <field name="booking_date"/>
+                <field name="stage_id"/>
+                
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_details">
+                            <strong><field name="booking_name"/></strong>
+                            <div>Room: <field name="room_id"/></div>
+                            <div>Date: <field name="booking_date"/></div>
+                            <div>Stage: <field name="stage_id"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
     <record id="view_room_booking_list" model="ir.ui.view">
         <field name="name">room.booking.list</field>
         <field name="model">room.booking</field>
@@ -9,7 +34,7 @@
                 <field name="room_id"/>
                 <field name="booking_name"/>
                 <field name="booking_date"/>
-                <field name="status"/>
+                <field name="stage_id"/>
             </list>
         </field>
     </record>
@@ -25,32 +50,6 @@
         </field>
     </record>
 
-    <record id="view_room_booking_kanban" model="ir.ui.view">
-        <field name="name">room.booking.kanban</field>
-        <field name="model">room.booking</field>
-        <field name="arch" type="xml">
-            <kanban default_group_by="status_order">
-                <field name="name"/>
-                <field name="room_id"/>
-                <field name="booking_name"/>
-                <field name="booking_date"/>
-                <field name="status"/>
-                <field name="status_order"/>
-                
-                <templates>
-                    <t t-name="card">
-                        <div class="oe_kanban_details">
-                            <strong><field name="booking_name"/></strong>
-                            <div>Room: <field name="room_id"/></div>
-                            <div>Date: <field name="booking_date"/></div>
-                            <div>Status: <field name="status"/></div>
-                        </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
-
     <record id="view_room_booking_form" model="ir.ui.view">
         <field name="name">room.booking.form</field>
         <field name="model">room.booking</field>
@@ -58,20 +57,29 @@
             <form>
                 <header>
                     <button name="action_confirm" type="object" string="Proses Pemesanan" 
-                        invisible="status not in ('draft')"/>
+                        invisible="stage_id != 1" class="btn btn-primary"/>
                     <button name="action_done" type="object" string="Selesaikan Pemesanan"
-                        invisible="status not in ('on_going')"/>
+                        invisible="stage_id != 2" class="btn btn-primary"/>
+                    <field name="stage_id" widget="statusbar" statusbar_visible="stage_draft,stage_progress,stage_done"/>
                 </header>
                 <sheet>
+                    <div class="oe_title">
+                        <div>
+                            <label for="name"/>
+                        </div>
+                        <h1 class="mb32">
+                            <field name="name" class="mb16" readonly="1"/>
+                        </h1>
+                    </div>
                     <group>
-                        <field name="name" readonly="1"/>
-                        <field name="room_id" readonly="status not in ('draft')"/>
-                        <field name="booking_name" readonly="status not in ('draft')"/>
-                        <field name="booking_date" readonly="status not in ('draft')"/>
-                        <field name="status" readonly="1"/>
-                        <field name="notes" readonly="status not in ('draft')"/>
+                        <field name="room_id" readonly="stage_id != 1"/>
+                        <field name="booking_name" readonly="stage_id != 1"/>
+                        <field name="booking_date" readonly="stage_id != 1"/>
+                        <field name="stage_id" readonly="1"/>
+                        <field name="notes" readonly="stage_id != 1"/>
                     </group>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>
